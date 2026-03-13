@@ -45,3 +45,18 @@ jobs:
             --template-file bicep/main.bicep \
             --parameters bicep/parameters/dev.bicepparam \
             --name "deploy-dev-${{ github.run_id }}"
+
+      - name: Grant AKS RBAC Cluster Admin access
+        run: |
+          AKS_ID=$(az aks show \
+            --resource-group infraapp-rg-dev \
+            --name infraapp-aks-dev \
+            --query id -o tsv)
+          az role assignment create \
+            --assignee 86cd7a4f-c7f9-4b69-ba37-26f42111c64d \
+            --role "Azure Kubernetes Service RBAC Cluster Admin" \
+            --scope "$AKS_ID" 2>/dev/null || echo "User role assignment already exists"
+          az role assignment create \
+            --assignee 1f065ea8-981c-42df-a080-af05b09a821b \
+            --role "Azure Kubernetes Service RBAC Cluster Admin" \
+            --scope "$AKS_ID" 2>/dev/null || echo "CI/CD role assignment already exists"

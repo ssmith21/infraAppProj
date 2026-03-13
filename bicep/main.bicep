@@ -24,11 +24,6 @@ param tags object = {
 @description('CIDR range allowed to access the AKS API server (e.g. your public IP/32)')
 param authorizedIpRange string = '0.0.0.0/0'
 
-@description('Azure AD object ID of the user/group to grant AKS Cluster Admin access')
-param clusterAdminObjectId string
-
-@description('Azure AD object ID of the CI/CD service principal to grant AKS Cluster Admin access')
-param cicdPrincipalObjectId string
 
 // ── Networking ──────────────────────────────────────────────────────────────
 module networking 'modules/networking.bicep' = {
@@ -70,33 +65,6 @@ resource aksNetworkContributor 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
-// ── Role Assignment: AKS Cluster Admin for the operator user ────────────────
-// Grants kubectl access — required when Azure RBAC is enabled on the cluster
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' existing = {
-  name: '${project}-aks-${environment}'
-}
-
-resource clusterAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, clusterAdminObjectId, 'aks-cluster-admin')
-  scope: aksCluster
-  properties: {
-    roleDefinitionId: tenantResourceId('Microsoft.Authorization/roleDefinitions', 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19f') // Azure Kubernetes Service RBAC Cluster Admin
-    principalId: clusterAdminObjectId
-    principalType: 'User'
-  }
-}
-
-// ── Role Assignment: AKS Cluster Admin for the CI/CD service principal ───────
-// Grants GitHub Actions kubectl access via Azure RBAC
-resource cicdClusterAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, cicdPrincipalObjectId, 'aks-cluster-admin')
-  scope: aksCluster
-  properties: {
-    roleDefinitionId: tenantResourceId('Microsoft.Authorization/roleDefinitions', 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19f') // Azure Kubernetes Service RBAC Cluster Admin
-    principalId: cicdPrincipalObjectId
-    principalType: 'ServicePrincipal'
-  }
-}
 
 // ── Outputs ─────────────────────────────────────────────────────────────────
 output vnetId string = networking.outputs.vnetId
