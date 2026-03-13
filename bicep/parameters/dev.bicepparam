@@ -9,3 +9,4 @@ param environment = 'dev'
 param location = 'canadacentral'
 param authorizedIpRange = '0.0.0.0/0' // Tighten to your public IP/32 for security
 param clusterAdminObjectId = '86cd7a4f-c7f9-4b69-ba37-26f42111c64d'
+param cicdPrincipalObjectId = '1f065ea8-981c-42df-a080-af05b09a821b'
