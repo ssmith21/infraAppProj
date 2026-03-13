@@ -28,12 +28,18 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
+      - name: Install kubelogin
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'latest'
+
       - name: Get AKS credentials
         run: |
           az aks get-credentials \
             --resource-group infraapp-rg-dev \
             --name infraapp-aks-dev \
             --overwrite-existing
+          kubelogin convert-kubeconfig -l azurecli
 
       - name: Deploy app
         run: |
