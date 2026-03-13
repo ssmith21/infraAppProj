@@ -70,6 +70,12 @@ resource aksNetworkContributor 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
+// ── Role Definitions (existing built-in) ────────────────────────────────────
+resource aksRbacClusterAdminRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  name: 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19f' // Azure Kubernetes Service RBAC Cluster Admin
+  scope: subscription()
+}
+
 // ── Role Assignment: AKS Cluster Admin for the operator user ────────────────
 // Grants kubectl access — required when Azure RBAC is enabled on the cluster
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' existing = {
@@ -80,7 +86,7 @@ resource clusterAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@202
   name: guid(resourceGroup().id, clusterAdminObjectId, 'aks-cluster-admin')
   scope: aksCluster
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19f') // AKS RBAC Cluster Admin
+    roleDefinitionId: aksRbacClusterAdminRole.id
     principalId: clusterAdminObjectId
     principalType: 'User'
   }
@@ -92,7 +98,7 @@ resource cicdClusterAdminRoleAssignment 'Microsoft.Authorization/roleAssignments
   name: guid(resourceGroup().id, cicdPrincipalObjectId, 'aks-cluster-admin')
   scope: aksCluster
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19f') // AKS RBAC Cluster Admin
+    roleDefinitionId: aksRbacClusterAdminRole.id
     principalId: cicdPrincipalObjectId
     principalType: 'ServicePrincipal'
   }
