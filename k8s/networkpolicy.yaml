@@ -1,0 +1,27 @@
+# Default deny all ingress in the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: welcome-app
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Allow ingress only on port 8080 to the welcome app
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-welcome-ingress
+  namespace: welcome-app
+spec:
+  podSelector:
+    matchLabels:
+      app: welcome
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: 8080
+          protocol: TCP

@@ -1,0 +1,11 @@
+# Parameter files with real values (use .example files instead)
+bicep/parameters/*.bicepparam
+!bicep/parameters/*.example.bicepparam
+!bicep/parameters/dev.bicepparam
+
+# ARM JSON output from Bicep compilation
+*.json
+!**/azuredeploy.json
+
+# Azure CLI cache
+.azure/
